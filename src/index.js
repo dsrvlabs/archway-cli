@@ -278,15 +278,18 @@ Program
     await Tools.Tx(archwayd, options);
   });
 
-
-// init local chain.
-// start local chain.
+// TODO: More smart way?
+// `archway chain`
 Program
   .command('chain')
   .argument('<command>', 'Query module to use; available modules:')
-  .description('Start local chain')
+  .option('-m, --moniker <value>', 'Moniker of new localchain')
+  .option('-c, --chain-id <value>', 'chain-id')
+  .option('-d, --denom <value>', 'denom')
+  .description('Configure local chain')
   .action(async (command, options) => {
-    Tools.Chain(command, options);
+    const archwayd = await createClient({ checkHomePath: true, ...options });
+    await Tools.Chain(archwayd, command, options);
   });
 
 Program.parseAsync();
