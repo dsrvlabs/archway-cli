@@ -114,7 +114,12 @@ function buildConfig({ name, docker, environment, testnet }) {
 }
 
 async function cargoGenerate({ name, network: { name: networkName, templatesBranch } }, { template = DefaultTemplate }) {
-  const branch = templatesBranch || (networkName ? `network/${networkName}` : DefaultTemplateBranch);
+  var branch;
+  if (networkName === "local") {
+    branch = DefaultTemplateBranch;
+  } else {
+    branch = templatesBranch || (networkName ? `network/${networkName}` : DefaultTemplateBranch);
+  }
   await new Cargo().generate(name, TemplatesRepository, branch, template);
 }
 
@@ -155,3 +160,4 @@ async function main(name, options = {}) {
 }
 
 module.exports = main;
+  
