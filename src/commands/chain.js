@@ -66,9 +66,9 @@ async function main(archwayd, name, options = {}) {
             command = spawn(archwayd.command, [name]);
             break;
         case 'reset':
-	    console.log("Reset block data");
-	    command = spawn(archwayd.command, ["unsafe-reset-all"]);
-	    command.stderr.on('data', (data) => {
+            console.log("Reset block data");
+            command = spawn(archwayd.command, ["unsafe-reset-all"]);
+            command.stderr.on('data', (data) => {
                 process.stdout.write(`${data}`);
             });	
             break;
