@@ -65,6 +65,7 @@ class DefaultArchwayClient {
 class DockerArchwayClient extends DefaultArchwayClient {
   constructor({ archwaydVersion = DefaultArchwaydVersion, testnet, ...options }) {
     super(options);
+
     this.archwaydVersion = testnet || archwaydVersion;
   }
 
