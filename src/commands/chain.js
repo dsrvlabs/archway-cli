@@ -17,7 +17,7 @@ async function main(archwayd, name, options = {}) {
                 return;
             }
 
-            const question = [
+            var question = [
                 {
                     type: 'confirm',
                     name: 'selection',
@@ -31,13 +31,23 @@ async function main(archwayd, name, options = {}) {
                 console.warn(chalk`{red bye}`);
                 return;
             }
+
+            question = [
+                {
+                    type: 'password',
+                    name: 'passwd',
+                    message: "Keyring password"
+                }
+            ]
+
+            const { passwd } = await prompts(question);
             //
 
-            keyValidator = await createKey(archwayd, options.moniker);
+            keyValidator = await createKey(archwayd, options.moniker, passwd);
 
             const testKeys = [];
             testerKeyNames.forEach(name => {
-                const newKey = createKey(archwayd, name)
+                const newKey = createKey(archwayd, name, passwd)
                 testKeys.push(newKey);
             });
 
@@ -137,9 +147,8 @@ class LocalChain {
     }
 }
 
-createKey = (archwayd, name) => {
-    // TODO: Handle already exist.
-    const ret = spawnSync(`archwayd`, ['keys', 'add', name, '--home', archwayd.archwaydHome, '--output', 'json']);
+createKey = (archwayd, name, passwd) => {
+    const ret = spawnSync('archwayd', ['keys', 'add', name, '--keyring-backend', 'file', '--output', 'json'], { input: passwd + '\n' })
     if (ret.error != null) {
         throw ret.error;
     }

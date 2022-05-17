@@ -144,6 +144,7 @@ async function storeWasm(archwayd, { project: { name } = {}, from, chainId, ...o
     await copyFile(localPath, remotePath);
   }
 
+  console.log(from, chainId);
   const transaction = await retry(() => archwayd.tx.wasm('store', [localPath], { from, chainId, ...options }), {
     ...DefaultRetryOptions,
     onRetry: () => console.warn(chalk`{yellow Call to wasm store failed, retrying...}\n`),
