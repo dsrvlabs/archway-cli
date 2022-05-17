@@ -2,6 +2,9 @@
 
 Make sure you've installed and configured a few dependencies. For full installation and setup instructions visit https://docs.archway.io/docs/create/getting-started/install
 
+> This repository is submission version for Archway Incentivized Testnet challenges, *Running Archway CLI in Local Env*.
+> For more information, read [this](./CHALLENGE_DESC.md)
+
 ### Dependencies
 
 - [Rustc](https://www.rust-lang.org/tools/install "Install Rust")
