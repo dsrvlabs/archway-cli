@@ -91,7 +91,7 @@ async function main(archwayd, name, options = {}) {
             }
             
             const snapshot = spawnSync("tar", ["zcvf", `${today.getFullYear}${today.getMonth}${today.getDate}_data.tar.gz`,`${archwayd.archwaydHome}/.archway/data`]);
-            snapshot.stdout.on('data', () => {
+            snapshot.stdout.on('data', (data) => {
                 process.stdout.write(`${data}`);
             });
 
