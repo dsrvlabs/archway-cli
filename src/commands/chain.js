@@ -82,6 +82,20 @@ async function main(archwayd, name, options = {}) {
                 process.stdout.write(`${data}`);
             });	
             break;
+        case 'snapshot': 
+            const today = new Date();
+            console.log("Make a snapshot");
+            const mkDir = spawnSync(`mkdir`, [`${archwayd.archwaydHome}/snapshot`]);
+            if (mkdir.error != null){
+                throw mkDir.error;
+            }
+            
+            const snapshot = spawnSync("tar", ["zcvf", `${today.getFullYear}${today.getMonth}${today.getDate}_data.tar.gz`,`${archwayd.archwaydHome}/.archway/data`]);
+            snapshot.stdout.on('data', () => {
+                process.stdout.write(`${data}`);
+            });
+
+            console.log(`Snapshot creation completed. Location: ${archwayd.archwaydHome}/snapshot`);
         case 'test':
             break;
         default:
