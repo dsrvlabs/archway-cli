@@ -85,8 +85,8 @@ async function main(archwayd, name, options = {}) {
         case 'snapshot': 
             const today = new Date();
             console.log("Make a snapshot");
-            const mkDir = spawnSync(`mkdir`, [`${archwayd.archwaydHome}/snapshot`]);
-            if (mkdir.error != null){
+            const mkDir = spawnSync("mkdir", [`${archwayd.archwaydHome}/snapshot`]);
+            if (mkDir.error != null){
                 throw mkDir.error;
             }
             
