@@ -1,7 +1,7 @@
 {
   "network": {
     "name": "local",
-    "chainId": "localnet-1",
+    "chainId": "localtest",
     "type": "local",
     "fees": {
       "feeDenom": "utorii"
