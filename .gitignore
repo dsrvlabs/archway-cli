@@ -29,3 +29,6 @@ npm-debug.log*
 .DS_Store
 *.bak
 .history
+
+# Snapshot folder
+snapshots
