@@ -295,27 +295,27 @@ Chain
   });
 
 Chain
- .command('start')
- .description('Starts the interrupted chain')
- .action(async (command, options) => {
-  const archwayd = await createClient({ checkHomePath: true, ...options });
-  await Tools.Chain.startChain(archwayd);
-});
+  .command('start')
+  .description('Starts the interrupted chain')
+  .action(async (command, options) => {
+    const archwayd = await createClient({ checkHomePath: true, ...options });
+    await Tools.Chain.startChain(archwayd);
+  });
 
 Chain
- .command('reset')
- .description('Delete currently working chain data')
- .action(async (options) => {
-  const archwayd = await createClient({ checkHomePath: true, ...options });
-  await Tools.Chain.resetChain(archwayd);
-});
+  .command('reset')
+  .description('Delete currently working chain data')
+  .action(async (options) => {
+    const archwayd = await createClient({ checkHomePath: true, ...options });
+    await Tools.Chain.resetChain(archwayd);
+  });
 
 Chain
- .command('snapshot')
- .description('Create a new snapshot of the chain data based on the current')
- .action(async (options) => {
-  const archwayd = await createClient({ checkHomePath: true, ...options });
-  await Tools.Chain.makeSnapshot(archwayd);
-});
+  .command('snapshot')
+  .description('Create a new snapshot of the chain data based on the current')
+  .action(async (options) => {
+    const archwayd = await createClient({ checkHomePath: true, ...options });
+    await Tools.Chain.makeSnapshot(archwayd);
+  });
 
 Program.parseAsync();
