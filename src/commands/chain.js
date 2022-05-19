@@ -83,18 +83,19 @@ async function main(archwayd, name, options = {}) {
             });	
             break;
         case 'snapshot': 
+            const rootDir = `${__dirname}/../../`
             const today = new Date();
             console.log("Make a snapshot");
-            const mkDir = spawnSync("mkdir", [`${archwayd.archwaydHome}/snapshot`]);
+            const mkDir = spawn("mkdir", [`${rootDir}/snapshots`]);
             if (mkDir.error != null){
                 throw mkDir.error;
             }
-            const snapshot = spawnSync("tar", ["zcvf", `${archwayd.archwaydHome}/snapshot/${today.getFullYear()}${today.getMonth()}${today.getDate()}_data.tar.gz`,`${archwayd.archwaydHome}/data`]);
+            const snapshot = spawn("tar", ["zcvf", `${rootDir}/snapshots/${today.getFullYear()}${today.getMonth()}${today.getDate()}_data.tar.gz`,`${archwayd.archwaydHome}/data`]);
             snapshot.stdout.on('data', (data) => {
                 process.stdout.write(`${data}`);
             });
 
-            console.log(`Snapshot creation completed. Location: ${archwayd.archwaydHome}/snapshot`);
+            console.log(`Snapshot creation completed. Location: ${rootDir}/snapshot`);
         case 'test':
             break;
         default:
