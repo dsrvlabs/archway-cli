@@ -72,13 +72,15 @@ async function initChain(archwayd, options = {}) {
 
 async function startChain(archwayd) {
     console.log("Local chain start");
-    startCommand = spawn(archwayd.command, ["start"]);
+    const startCommand = spawn(archwayd.command, ["start"]);
+    startCommand.stdout.pipe(process.stdout);
+    startCommand.stderr.pipe(process.stdout);
 }
 
 async function resetChain(archwayd) {
     console.log("Reset block data");
     try{
-        resetCommand = spawn(archwayd.command, ["unsafe-reset-all"]);
+        const resetCommand = spawn(archwayd.command, ["unsafe-reset-all"]);
         resetCommand.stderr.on('data', (data) => {
             process.stdout.write(`${data}`);
         });
