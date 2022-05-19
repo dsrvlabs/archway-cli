@@ -62,7 +62,7 @@ async function main(archwayd, name, options = {}) {
                 await newChain.addGenesisAccount(k, initialBalance);
             });
 
-            await newChain.genTx(options.moniker, initialBalance);
+            await newChain.genTx(options.moniker, initialBalance, passwd);
 
             console.info(chalk`{red Validator Key}`);
             printKeyInfo(keyValidator);
@@ -143,21 +143,45 @@ class LocalChain {
     }
 
     async addGenesisAccount(key, amount) {
-        const ret = spawnSync(`archwayd`, ['add-genesis-account', key.address, `${amount}${this.denom}`, '--home', this.archwayd.archwaydHome, '--output', 'json']);
+        console.log("addGenesisAccount");
+
+        const args = [
+            'add-genesis-account',
+            key.address,
+            `${amount}${this.denom}`,
+            '--home',
+            this.archwayd.archwaydHome,
+            '--output',
+            'json'
+        ];
+
+        const ret = spawnSync(`archwayd`, args);
         if (ret.error != null) {
             throw ret.error;
         }
     }
 
-    async genTx(keyName, amount) {
+    async genTx(keyName, amount, passwd) {
         console.log("Add getTx");
 
-        var ret = spawnSync(`archwayd`, ['gentx', keyName, `${amount}${this.denom}`, '--chain-id', this.chainId, '--home', this.archwayd.archwaydHome]);
+        const args = [
+            'gentx',
+            keyName,
+            `${amount}${this.denom}`,
+            '--chain-id',
+            this.chainId,
+            '--keyring-backend',
+            'file',
+            '--home',
+            this.archwayd.archwaydHome
+        ];
+
+        var ret = spawnSync(`archwayd`, args, { input: passwd + '\n' });
         if (ret.error != null) {
             throw ret.error;
         }
 
-        ret = spawnSync(`archwayd`, ['collect-gentxs', '--home', this.archwayd.archwaydHome, ]);
+        ret = spawnSync(`archwayd`, ['collect-gentxs', '--home', this.archwayd.archwaydHome]);
         if (ret.error != null) {
             throw ret.error;
         }
@@ -165,7 +189,17 @@ class LocalChain {
 }
 
 createKey = (archwayd, name, passwd) => {
-    const ret = spawnSync('archwayd', ['keys', 'add', name, '--keyring-backend', 'file', '--output', 'json'], { input: passwd + '\n' })
+    const args = [
+        'keys',
+        'add',
+        name,
+        '--keyring-backend',
+        'file',
+        '--output',
+        'json'
+    ];
+
+    const ret = spawnSync(archwayd.command, args, { input: passwd + '\n' })
     if (ret.error != null) {
         throw ret.error;
     }
