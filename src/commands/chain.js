@@ -85,7 +85,7 @@ async function main(archwayd, name, options = {}) {
                 process.stdout.write(`${data}`);
             });	
             break;
-        case 'snapshot': 
+        case 'snapshot':
             const rootPath = path.dirname(await Config.path(this.pathPrefix));
             const nowDate = new Date();
             console.log("Make a snapshot");
