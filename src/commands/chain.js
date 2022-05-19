@@ -93,7 +93,7 @@ async function main(archwayd, name, options = {}) {
             if (mkDir.error != null){
                 throw mkDir.error;
             }
-            const snapshot = spawn("tar", ["zcvf", `${rootPath}/snapshots/chaindata_${nowDate.toISOString()}.tar.gz`,`${archwayd.archwaydHome}/data`]);
+            const snapshot = spawn("tar", ["zcvf", `${rootPath}/snapshots/chaindata_${nowDate.toISOString()}.tar.gz`,`${archwayd.archwaydHome}/data`, "-C", "~/.archway"]);
             snapshot.stdout.on('data', (data) => {
                 process.stdout.write(`${data}`);
                 console.log(`Snapshot creation completed. Location: ${rootPath}/snapshots`);
