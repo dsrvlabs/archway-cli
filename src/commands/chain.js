@@ -93,9 +93,8 @@ async function main(archwayd, name, options = {}) {
             const snapshot = spawn("tar", ["zcvf", `${rootDir}/snapshots/${today.getFullYear()}${today.getMonth()}${today.getDate()}_data.tar.gz`,`${archwayd.archwaydHome}/data`]);
             snapshot.stdout.on('data', (data) => {
                 process.stdout.write(`${data}`);
+                console.log(`Snapshot creation completed. Location: archway-cli/snapshots`);
             });
-
-            console.log(`Snapshot creation completed. Location: archway-cli/snapshots`);
         case 'test':
             break;
         default:
