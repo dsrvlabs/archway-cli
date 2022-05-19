@@ -2,6 +2,9 @@ const { spawn, spawnSync } = require('child_process');
 const prompts = require('prompts');
 const chalk = require('chalk');
 const fs = require('fs');
+const path = require('path');
+
+const Config = require('../util/config');
 
 const initialBalance = 1000000000000;
 const testerKeyNames = ['tester1', 'tester2', 'tester3'];
@@ -83,17 +86,17 @@ async function main(archwayd, name, options = {}) {
             });	
             break;
         case 'snapshot': 
-            const rootDir = `${__dirname}/../../`
-            const today = new Date();
+            const rootPath = path.dirname(await Config.path(this.pathPrefix));
+            const nowDate = new Date();
             console.log("Make a snapshot");
-            const mkDir = spawn("mkdir", [`${rootDir}/snapshots`]);
+            const mkDir = spawn("mkdir", [`${rootPath}/snapshots`]);
             if (mkDir.error != null){
                 throw mkDir.error;
             }
-            const snapshot = spawn("tar", ["zcvf", `${rootDir}/snapshots/${today.getFullYear()}${today.getMonth()}${today.getDate()}_data.tar.gz`,`${archwayd.archwaydHome}/data`]);
+            const snapshot = spawn("tar", ["zcvf", `${rootPath}/snapshots/chaindata_${nowDate.toISOString()}.tar.gz`,`${archwayd.archwaydHome}/data`]);
             snapshot.stdout.on('data', (data) => {
                 process.stdout.write(`${data}`);
-                console.log(`Snapshot creation completed. Location: archway-cli/snapshots`);
+                console.log(`Snapshot creation completed. Location: ${rootPath}/snapshots`);
             });
         case 'test':
             break;
