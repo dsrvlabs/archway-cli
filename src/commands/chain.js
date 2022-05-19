@@ -9,103 +9,100 @@ const Config = require('../util/config');
 const initialBalance = 1000000000000;
 const testerKeyNames = ['tester1', 'tester2', 'tester3'];
 
-async function main(archwayd, name, options = {}) {
-    try {
-        switch (name) {
-        case 'new':
-            // TODO: Refactoring?
-            if(options.moniker == null || options.chainId == null || options.denom == null) {
-                // TODO:
-                console.log("Need paremeters.");
-                return;
-            }
+async function initChain(archwayd, options = {}) {
+    if(options.moniker == null || options.chainId == null || options.denom == null) {
+        // TODO:
+        console.log("Need paremeters.");
+        return;
+    }
 
-            var question = [
-                {
-                    type: 'confirm',
-                    name: 'selection',
-                    message: chalk`{red This step will reset local chain configuration. proceed ?}`,
-                    initial: false
-                }
-            ];
-
-            const { selection } = await prompts(question);
-            if(!selection) {
-                console.warn(chalk`{red bye}`);
-                return;
-            }
-
-            question = [
-                {
-                    type: 'password',
-                    name: 'passwd',
-                    message: "Keyring password"
-                }
-            ]
-
-            const { passwd } = await prompts(question);
-            //
-
-            keyValidator = await createKey(archwayd, options.moniker, passwd);
-
-            const testKeys = [];
-            testerKeyNames.forEach(name => {
-                const newKey = createKey(archwayd, name, passwd)
-                testKeys.push(newKey);
-            });
-
-            newChain = new LocalChain(archwayd, options.moniker, options.chainId, options.denom);
-            await newChain.initNewChain();
-
-            await newChain.addGenesisAccount(keyValidator, initialBalance);
-            testKeys.forEach(async k => {
-                await newChain.addGenesisAccount(k, initialBalance);
-            });
-
-            await newChain.genTx(options.moniker, initialBalance, passwd);
-
-            console.info(chalk`{red Validator Key}`);
-            printKeyInfo(keyValidator);
-
-            console.info(chalk`{red Test Keys}`);
-            testKeys.forEach(k => {
-                console.info(`===== ===== ===== ===== =====`);
-                printKeyInfo(k);
-            });
-
-            break;
-        case 'start':
-            console.log("Local chain start");
-            command = spawn(archwayd.command, [name]);
-            break;
-        case 'reset':
-            console.log("Reset block data");
-            command = spawn(archwayd.command, ["unsafe-reset-all"]);
-            command.stderr.on('data', (data) => {
-                process.stdout.write(`${data}`);
-            });	
-            break;
-        case 'snapshot':
-            const rootPath = path.dirname(await Config.path(this.pathPrefix));
-            const nowDate = new Date();
-            console.log("Make a snapshot");
-            const mkDir = spawn("mkdir", [`${rootPath}/snapshots`]);
-            if (mkDir.error != null){
-                throw mkDir.error;
-            }
-            const snapshot = spawn("tar", ["-C", `${archwayd.archwaydHome}`, "-zcvf", `${rootPath}/snapshots/chaindata_${nowDate.toISOString()}.tar.gz`, `data`]);
-            snapshot.stdout.on('data', (data) => {
-                process.stdout.write(`${data}`);
-                console.log(`Snapshot creation completed. Location: ${rootPath}/snapshots`);
-            });
-        case 'test':
-            console.log(archwayd.archwaydHome);
-            break;
-        default:
-            break;
+    var question = [
+        {
+            type: 'confirm',
+            name: 'selection',
+            message: chalk`{red This step will reset local chain configuration. proceed ?}`,
+            initial: false
         }
+    ];
+
+    const { selection } = await prompts(question);
+    if(!selection) {
+        console.warn(chalk`{red bye}`);
+        return;
+    }
+
+    question = [
+        {
+            type: 'password',
+            name: 'passwd',
+            message: "Keyring password"
+        }
+    ]
+
+    const { passwd } = await prompts(question);
+    //
+
+    keyValidator = await createKey(archwayd, options.moniker, passwd);
+
+    const testKeys = [];
+    testerKeyNames.forEach(name => {
+        const newKey = createKey(archwayd, name, passwd)
+        testKeys.push(newKey);
+    });
+
+    newChain = new LocalChain(archwayd, options.moniker, options.chainId, options.denom);
+    await newChain.initNewChain();
+
+    await newChain.addGenesisAccount(keyValidator, initialBalance);
+    testKeys.forEach(async k => {
+        await newChain.addGenesisAccount(k, initialBalance);
+    });
+
+    await newChain.genTx(options.moniker, initialBalance, passwd);
+
+    console.info(chalk`{red Validator Key}`);
+    printKeyInfo(keyValidator);
+
+    console.info(chalk`{red Test Keys}`);
+    testKeys.forEach(k => {
+        console.info(`===== ===== ===== ===== =====`);
+        printKeyInfo(k);
+    });
+}
+
+async function startChain(archwayd) {
+    console.log("Local chain start");
+    startCommand = spawn(archwayd.command, ["start"]);
+}
+
+async function resetChain(archwayd) {
+    console.log("Reset block data");
+    try{
+        resetCommand = spawn(archwayd.command, ["unsafe-reset-all"]);
+        resetCommand.stderr.on('data', (data) => {
+            process.stdout.write(`${data}`);
+        });
+    } catch(e) {
+        console.error(`Chain Error: ${e}`);
+    }
+}
+
+async function makeSnapshot(archwayd) {
+    console.log("Make a snapshot");
+    try {
+        const nowDate = new Date();
+        const rootPath = path.dirname(await Config.path(this.pathPrefix));
+        const mkDir = spawn("mkdir", [`${rootPath}/snapshots`]);
+        if (mkDir.error != null){
+            throw mkDir.error;
+        }
+        const snapshot = spawn("tar", ["-C", `${archwayd.archwaydHome}`, "-zcvf", `${rootPath}/snapshots/chaindata_${nowDate.toISOString()}.tar.gz`, `data`]);
+        snapshot.stderr.on('data', (data) => {
+            process.stdout.write(`${data}`);
+            console.log(`Snapshot creation completed. Location: ${rootPath}/snapshots`);
+        });
     } catch (e) {
-        console.error("Chain Error " + e);
+        console.error(e.stderr);
     }
 }
 
@@ -212,4 +209,9 @@ printKeyInfo = key => {
     console.log(chalk`mnemonic: {yellow ${key.mnemonic}}`);
 }
 
-module.exports = main;
+module.exports = {
+    initChain,
+    startChain,
+    resetChain,
+    makeSnapshot
+};

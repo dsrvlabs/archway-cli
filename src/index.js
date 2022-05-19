@@ -280,16 +280,42 @@ Program
 
 // TODO: More smart way?
 // `archway chain`
-Program
-  .command('chain')
-  .argument('<command>', 'Query module to use; available modules:')
+const Chain = Program.command('chain')
+  .description('To manipulate the local chain')
+  
+Chain
+  .command('new')
   .option('-m, --moniker <value>', 'Moniker of new localchain')
   .option('-c, --chain-id <value>', 'chain-id')
   .option('-d, --denom <value>', 'denom')
-  .description('Configure local chain')
-  .action(async (command, options) => {
+  .description('Start a new chain in local network')
+  .action(async (options) => {
     const archwayd = await createClient({ checkHomePath: true, ...options });
-    await Tools.Chain(archwayd, command, options);
+    await Tools.Chain.initChain(archwayd, options);
   });
+
+Chain
+ .command('start')
+ .description('Starts the interrupted chain')
+ .action(async (command, options) => {
+  const archwayd = await createClient({ checkHomePath: true, ...options });
+  await Tools.Chain.startChain(archwayd);
+});
+
+Chain
+ .command('reset')
+ .description('Delete currently working chain data')
+ .action(async (options) => {
+  const archwayd = await createClient({ checkHomePath: true, ...options });
+  await Tools.Chain.resetChain(archwayd);
+});
+
+Chain
+ .command('snapshot')
+ .description('Create a new snapshot of the chain data based on the current')
+ .action(async (options) => {
+  const archwayd = await createClient({ checkHomePath: true, ...options });
+  await Tools.Chain.makeSnapshot(archwayd);
+});
 
 Program.parseAsync();
