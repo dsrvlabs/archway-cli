@@ -95,7 +95,7 @@ async function main(archwayd, name, options = {}) {
                 process.stdout.write(`${data}`);
             });
 
-            console.log(`Snapshot creation completed. Location: ${rootDir}/snapshot`);
+            console.log(`Snapshot creation completed. Location: archway-cli/snapshots`);
         case 'test':
             break;
         default:
