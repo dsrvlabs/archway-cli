@@ -105,3 +105,4 @@ Zip file for current chain data will be stored into `$PROJECT_HOME/snapshot`.
 ## Future works
 - Docker support.
 - Enhance snapshot feature. Provide snapshot and recovery command with fluent CLI UX.
+- Handle more errors and beatify logs.
