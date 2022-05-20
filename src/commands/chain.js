@@ -31,22 +31,44 @@ async function initChain(archwayd, options = {}) {
         return;
     }
 
-    question = [
-        {
-            type: 'password',
-            name: 'passwd',
-            message: "Keyring password"
-        }
-    ]
+    var keyPasswd;
 
-    const { passwd } = await prompts(question);
-    //
+    if (isKeysEmpty(archwayd)) {
+        const question = [
+            {
+                type: 'password',
+                name: 'passwd',
+                message: "Keyring password"
+            },
+            {
+                type: 'password',
+                name: 'passwdConfirm',
+                message: "Confirm password"
+            }
+        ];
 
-    keyValidator = await createKey(archwayd, options.moniker, passwd);
+        const { passwd, passwdConfirm } = await prompts(question);
+        keyValidator = await createKey(archwayd, options.moniker, `${passwd}\n${passwdConfirm}`);
+
+        keyPasswd = passwd;
+    } else {
+        const question = [
+            {
+                type: 'password',
+                name: 'passwd',
+                message: "Keyring password"
+            }
+        ];
+
+        const { passwd } = await prompts(question);
+        keyValidator = await createKey(archwayd, options.moniker, passwd);
+
+        keyPasswd = passwd;
+    }
 
     const testKeys = [];
     testerKeyNames.forEach(name => {
-        const newKey = createKey(archwayd, name, passwd)
+        const newKey = createKey(archwayd, name, keyPasswd)
         testKeys.push(newKey);
     });
 
@@ -58,7 +80,7 @@ async function initChain(archwayd, options = {}) {
         await newChain.addGenesisAccount(k, initialBalance);
     });
 
-    await newChain.genTx(options.moniker, initialBalance, passwd);
+    await newChain.genTx(options.moniker, initialBalance, keyPasswd);
 
     console.info(chalk`{red Validator Key}`);
     printKeyInfo(keyValidator);
@@ -204,6 +226,14 @@ createKey = (archwayd, name, passwd) => {
     }
 
     return JSON.parse(ret.stdout.toString());
+}
+
+isKeysEmpty = (archwayd) => {
+    const path = archwayd.archwaydHome + "/keyring-file/keyhash";
+    if (fs.existsSync(path)) {
+        return false;
+    }
+    return true;
 }
 
 printKeyInfo = key => {
